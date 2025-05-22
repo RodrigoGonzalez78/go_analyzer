@@ -6,16 +6,23 @@ import (
 	"os"
 
 	"github.com/RodrigoGonzalez78/go_analyzer/db"
+	"github.com/RodrigoGonzalez78/go_analyzer/middleware"
 	"github.com/RodrigoGonzalez78/go_analyzer/routes"
 )
 
 func main() {
 
 	db.StartDB()
+	db.MigrateModels()
+
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /login", routes.Login)
-	r.HandleFunc("POST /register", routes.Register)
+	r.HandleFunc("POST /auth/login", routes.Login)
+	r.HandleFunc("POST /auth/register", routes.Register)
+
+	r.HandleFunc("POST /actions", middleware.Auth(routes.CreateAction))
+	r.HandleFunc("GET /actions", middleware.Auth(routes.GetAllUserActions))
+	r.HandleFunc("DELETE /actions", middleware.Auth(routes.DeleteAction))
 
 	port := os.Getenv("PORT")
 	if port == "" {

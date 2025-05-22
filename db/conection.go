@@ -25,5 +25,5 @@ func StartDB() {
 }
 
 func MigrateModels() {
-	database.AutoMigrate(models.User{})
+	database.AutoMigrate(models.User{}, models.Action{})
 }

@@ -63,7 +63,7 @@ func getSecretKey() string {
 	}
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "Twittor_clone"
+		secret = "NoMeHackeen"
 	}
 	return secret
 }
