@@ -13,13 +13,21 @@ func CreateAction(action models.Action) error {
 	return nil
 }
 
-func GetUserActionsPaginated(userID uint, page int, pageSize int) ([]models.Action, error) {
+func GetActionByID(id uint) (*models.Action, error) {
+	var action models.Action
+	err := database.First(&action, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &action, nil
+}
+
+func GetUserActionsPaginated(userName string, page int, pageSize int) ([]models.Action, error) {
 	var actions []models.Action
 	offset := (page - 1) * pageSize
 
 	err := database.
-		Where("user_id = ?", userID).
-		Order("created_at DESC").
+		Where("user_name = ?", userName).
 		Limit(pageSize).
 		Offset(offset).
 		Find(&actions).Error

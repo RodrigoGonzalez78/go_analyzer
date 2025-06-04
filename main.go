@@ -22,7 +22,7 @@ func main() {
 
 	r.HandleFunc("POST /actions", middleware.Auth(routes.CreateAction))
 	r.HandleFunc("GET /actions", middleware.Auth(routes.GetAllUserActions))
-	r.HandleFunc("DELETE /actions", middleware.Auth(routes.DeleteAction))
+	r.HandleFunc("DELETE /actions/{id}", middleware.Auth(routes.DeleteAction))
 
 	port := os.Getenv("PORT")
 	if port == "" {

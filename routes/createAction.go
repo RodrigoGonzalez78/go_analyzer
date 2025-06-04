@@ -38,7 +38,7 @@ func CreateAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	action.UserID = claim.UserID
+	action.UserName = claim.UserName
 
 	err = db.CreateAction(action)
 	if err != nil {

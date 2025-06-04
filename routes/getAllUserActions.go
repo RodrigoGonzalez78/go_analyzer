@@ -32,7 +32,7 @@ func GetAllUserActions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	actions, err := db.GetUserActionsPaginated(claim.UserID, page, pageSize)
+	actions, err := db.GetUserActionsPaginated(claim.UserName, page, pageSize)
 	if err != nil {
 		http.Error(w, "Error al obtener las acciones", http.StatusInternalServerError)
 		return
