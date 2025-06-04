@@ -1,7 +1,7 @@
-### Documentacion de la api
+# Documentacion de la api
 
 
-### 1. Inicio de Sesión de Usuario
+## 1. Inicio de Sesión de Usuario
 
 **Endpoint:** `/login`  
 **Método:** `POST`  
@@ -34,7 +34,7 @@
 }
 ```
 
-### 2. Registro de Usuario
+## 2. Registro de Usuario
 
 **Endpoint:** `/register`  
 **Método:** `POST`  
@@ -63,7 +63,7 @@
 
 
 
-### 2. Creación de Acción
+## 2. Creación de Acción
 
 **Endpoint:** `/actions`
 **Método:** `POST`
@@ -132,7 +132,7 @@
 
 
 
-### 3. Listado de Acciones del Usuario
+## 4. Listado de Acciones del Usuario
 
 **Endpoint:** `/actions`
 **Método:** `GET`
@@ -203,7 +203,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR...
 
 
 
-### 4. Eliminación de Acción
+## 5. Eliminación de Acción
 
 **Endpoint:** `/actions/{id}`
 **Método:** `DELETE`
