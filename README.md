@@ -1,3 +1,158 @@
+# Parser de Comandos de Agenda
+
+Un parser sintáctico en Go que analiza comandos de texto en español para crear y gestionar acciones en una agenda personal.
+
+## Descripción
+
+Este parser utiliza análisis sintáctico descendente recursivo para procesar comandos de texto en lenguaje natural y convertirlos en estructuras de datos para almacenamiento en base de datos. Soporta diferentes formatos de fecha y hora, y valida la sintaxis según una gramática definida.
+
+## Gramática Soportada
+
+```
+COMANDO   → VERBO PALABRAS TIEMPO
+VERBO     → "agendá" | "anotá" | "recordame"
+PALABRAS  → PALABRA { PALABRA }
+PALABRA   → [A-Za-zÁÉÍÓÚÑáéíóúñüÜ]+
+TIEMPO    → ( FECHA [ HORA ] ) | HORA | ε
+FECHA     → FECHA_FIJA | NUMERO "de" MES AÑO
+FECHA_FIJA → "hoy" | "mañana" | DIA_SEMANA
+DIA_SEMANA → "lunes" | "martes" | "miércoles" | "jueves" | "viernes" | "sábado" | "domingo"
+HORA      → "a las" NUMERO ":" MINUTOS
+MES       → "enero" | "febrero" | "marzo" | "abril" | "mayo" | "junio" | 
+           "julio" | "agosto" | "septiembre" | "octubre" | "noviembre" | "diciembre"
+AÑO       → DIGITO DIGITO DIGITO DIGITO
+MINUTOS   → DIGITO DIGITO
+NUMERO    → DIGITO { DIGITO }
+DIGITO    → "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+```
+
+## Formato de Comandos
+
+### Estructura Básica
+```
+[VERBO] [DESCRIPCIÓN] [FECHA] [HORA]
+```
+
+### Verbos Soportados
+- `agendá` - Para programar eventos
+- `anotá` - Para crear notas o recordatorios
+- `recordame` - Para establecer recordatorios
+
+### Formatos de Fecha
+1. **Fechas relativas:**
+   - `hoy` - Fecha actual
+   - `mañana` - Día siguiente
+
+2. **Días de la semana:**
+   - `lunes`, `martes`, `miércoles`, `jueves`, `viernes`, `sábado`, `domingo`
+   - Se interpreta como el próximo día de esa semana
+
+3. **Fechas específicas:**
+   - Formato: `[DÍA] de [MES] [AÑO]`
+   - Ejemplo: `15 de marzo 2024`
+
+### Formato de Hora
+- Formato: `a las [HORA]:[MINUTOS]`
+- Hora en formato 24 horas (00:00 - 23:59)
+- Ejemplos: `a las 14:30`, `a las 09:00`, `a las 23:45`
+
+### Descripción
+- Una o más palabras que describen la acción
+- Solo caracteres alfabéticos (incluye acentos y ñ)
+- Ejemplo: `reunión equipo`, `comprar leche`, `llamar doctor`
+
+## Ejemplos de Comandos Válidos
+
+### Comandos Básicos (sin fecha/hora)
+```
+agendá reunión
+anotá comprar leche
+recordame llamar mamá
+```
+
+### Comandos con Fecha Solamente
+```
+agendá reunión hoy
+anotá comprar leche mañana
+recordame llamar doctor lunes
+agendá cita médica 15 de marzo 2024
+```
+
+### Comandos con Hora Solamente
+```
+agendá reunión a las 14:00
+anotá estudiar a las 09:30
+recordame descansar a las 22:15
+```
+
+### Comandos Completos (fecha + hora)
+```
+agendá reunión hoy a las 14:00
+anotá comprar leche mañana a las 10:30
+recordame llamar doctor lunes a las 09:00
+agendá cita médica martes a las 15:30
+recordame pagar facturas 15 de marzo 2024 a las 11:00
+```
+
+### Ejemplos con Días de la Semana
+```
+agendá ejercicio lunes a las 06:45
+anotá estudiar para examen martes
+recordame reunión miércoles a las 15:30
+agendá llamada jueves a las 10:00
+recordame descanso viernes a las 18:00
+agendá limpieza sábado a las 09:00
+anotá planificar domingo a las 20:00
+```
+
+## Reglas y Restricciones
+
+### Validaciones de Tiempo
+- **Horas:** 0-23 (formato 24 horas)
+- **Minutos:** 00-59 (siempre dos dígitos)
+- **Años:** Exactamente 4 dígitos
+
+### Validaciones de Texto
+- Las palabras solo pueden contener letras (incluye acentos españoles)
+- No se permiten números, símbolos o signos de puntuación en la descripción
+- Los espacios múltiples se normalizan automáticamente
+
+### Casos Especiales
+- Los comandos vacíos generan error
+- Los tokens no reconocidos al final del comando generan error
+- Las fechas pasadas son válidas sintácticamente
+- Si no se especifica fecha, se asume "hoy"
+- Si no se especifica hora, se asume "00:00"
+
+## Ejemplos de Comandos Inválidos
+
+```
+// Verbo inválido
+crear reunión hoy                    → Error: verbo inválido
+
+// Sin descripción
+agendá                              → Error: se esperaba una palabra
+
+// Hora inválida
+agendá reunión a las 25:00          → Error: hora fuera de rango
+
+// Formato de hora incorrecto
+agendá reunión a las 2:3            → Error: minutos deben tener 2 dígitos
+
+// Caracteres inválidos en descripción
+agendá reunión-importante           → Error: palabra inválida
+
+// Formato de fecha incorrecto
+agendá reunión 15 marzo 2024        → Error: se esperaba 'de'
+
+// Mes inválido
+agendá reunión 15 de mayo2024       → Error: mes inválido
+
+// Tokens inesperados
+agendá reunión hoy extra tokens     → Error: tokens inesperados
+```
+
+
 # Documentacion de la api
 
 
