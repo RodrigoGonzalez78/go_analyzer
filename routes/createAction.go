@@ -31,13 +31,17 @@ func CreateAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	action, err := analyzer.CreateAction(comand.Comand)
+	actionParsed, err := analyzer.CreateAction(comand.Comand)
 
 	if err != nil {
 		http.Error(w, "Error analisando el comando", http.StatusInternalServerError)
 		return
 	}
-
+	action, err := analyzer.TransformToAction(actionParsed, claim.UserName)
+	if err != nil {
+		http.Error(w, "Error transformando la accion", http.StatusInternalServerError)
+		return
+	}
 	action.UserName = claim.UserName
 
 	err = db.CreateAction(action)

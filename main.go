@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/RodrigoGonzalez78/go_analyzer/analyzer"
 	"github.com/RodrigoGonzalez78/go_analyzer/db"
 	"github.com/RodrigoGonzalez78/go_analyzer/middleware"
 	"github.com/RodrigoGonzalez78/go_analyzer/routes"
@@ -14,6 +15,8 @@ func main() {
 
 	db.StartDB()
 	db.MigrateModels()
+
+	analyzer.Ejemplo()
 
 	r := http.NewServeMux()
 
