@@ -3,20 +3,20 @@
 
 ## 1. Inicio de Sesión de Usuario
 
-**Endpoint:** `/login`  
+**Endpoint:** `/auth/login`  
 **Método:** `POST`  
 **Descripción:** Autentica al usuario mediante su nombre de usuario y contraseña. Si las credenciales son válidas, genera y retorna un token JWT.
 
 **Formato de solicitud:**
 ```json
 {
-  "userName": "juanperez",
+  "user_name": "juanperez",
   "password": "Pass1234"
 }
 ```
 
 **Requisitos:**
-- El campo `userName` no debe estar vacío.
+- El campo `user_name` no debe estar vacío.
 - El campo `password` no debe estar vacío.
 
 **Respuestas:**
@@ -36,22 +36,22 @@
 
 ## 2. Registro de Usuario
 
-**Endpoint:** `/register`  
+**Endpoint:** `/auth/register`  
 **Método:** `POST`  
 **Descripción:** Registra un nuevo usuario validando el nombre de usuario, la longitud mínima de la contraseña y su unicidad. La contraseña es almacenada de forma segura usando hash.
 
 **Formato de solicitud:**
 ```json
 {
-  "userName": "juanperez",
+  "user_name": "juanperez",
   "password": "Pass1234"
 }
 ```
 
 **Requisitos:**
-- El campo `userName` no debe estar vacío.
+- El campo `user_name` no debe estar vacío.
 - El campo `password` debe tener al menos 8 caracteres.
-- El `userName` debe ser único en la base de datos.
+- El `user_name` debe ser único en la base de datos.
 
 **Respuestas:**
 
@@ -79,7 +79,7 @@
 
 ```json
 {
-  "comand": "Agendá reunión con Laura mañana a las 15:00"
+  "comand": "agendá reunión con Laura mañana a las 15:00"
 }
 ```
 
@@ -174,28 +174,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR...
 ```json
 [
   {
-    "id": 15,
+    "id": 1,
     "user_name": "juanperez",
-    "verb": "Agendá",
     "description": "reunión con Laura",
-    "date": "2025-06-05T00:00:00Z",
-    "has_time": true,
-    "time_only": "15:00:00Z",
-    "created_at": "2025-06-04T10:12:34Z",
-    "updated_at": "2025-06-04T10:12:34Z"
-  },
-  {
-    "id": 16,
-    "user_name": "juanperez",
-    "verb": "Recordame",
-    "description": "pagar la factura de luz",
-    "date": "2025-06-07T00:00:00Z",
-    "has_time": false,
-    "time_only": null,
-    "created_at": "2025-06-04T11:00:00Z",
-    "updated_at": "2025-06-04T11:00:00Z"
+    "date": "2025-06-16T00:00:00-03:00"
   }
-  // ... más acciones según pageSize ...
 ]
 ```
 
@@ -270,5 +253,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR...
   ```
 
 ---
-
 
