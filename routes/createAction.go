@@ -34,12 +34,12 @@ func CreateAction(w http.ResponseWriter, r *http.Request) {
 	actionParsed, err := analyzer.CreateAction(comand.Comand)
 
 	if err != nil {
-		http.Error(w, "Error analisando el comando", http.StatusInternalServerError)
+		http.Error(w, "Error analisando el comando: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	action, err := analyzer.TransformToAction(actionParsed, claim.UserName)
 	if err != nil {
-		http.Error(w, "Error transformando la accion", http.StatusInternalServerError)
+		http.Error(w, "Error transformando la accion: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	action.UserName = claim.UserName
