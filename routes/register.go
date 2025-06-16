@@ -39,10 +39,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	t.Password = encrypt_password
 
-	encotrado, _ := db.IsUserNameUnique(t.UserName)
+	esUnico, err := db.IsUserNameUnique(t.UserName)
 
-	if !encotrado {
+	if !esUnico {
 		http.Error(w, "Ya esta registrado el nombre usuario!", 400)
+		return
+	}
+	
+	if err != nil {
+		http.Error(w, "Error al verificar el nombre de usuario: "+err.Error(), 500)
 		return
 	}
 

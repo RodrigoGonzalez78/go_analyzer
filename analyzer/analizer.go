@@ -23,6 +23,7 @@ type ParsedAction struct {
 	Palabras []string
 	Fecha    string
 	Hora     string
+	Type     string // "evento" o "recordatorio"
 }
 
 // Parser representa el analizador sintáctico
@@ -95,6 +96,18 @@ func (p *Parser) parseComando() (ParsedAction, error) {
 		return action, err
 	}
 	action.Verbo = verbo
+
+	// Determinar tipo basado en el verbo
+	switch verbo {
+	case "agendá":
+		action.Type = "evento"
+	case "anotá":
+		action.Type = "recordatorio"
+	case "recordame":
+		action.Type = "recordatorio"
+	default:
+		return action, fmt.Errorf("verbo inválido: '%s'. Esperado: agendá, anotá, recordame", verbo)
+	}
 
 	// Parsear PALABRAS
 	palabras, err := p.parsePalabras()
@@ -404,8 +417,8 @@ func Ejemplo() {
 			continue
 		}
 
-		fmt.Printf("✓ Parseado - Verbo: %s, Palabras: %v, Fecha: '%s', Hora: '%s'\n",
-			parsedAction.Verbo, parsedAction.Palabras, parsedAction.Fecha, parsedAction.Hora)
+		fmt.Printf("✓ Parseado - Verbo: %s, Palabras: %v, Fecha: '%s', Hora: '%s', Tipo: '%s'\n",
+			parsedAction.Verbo, parsedAction.Palabras, parsedAction.Fecha, parsedAction.Hora, parsedAction.Type)
 
 		// Transformar a Action final
 		action, err := TransformToAction(parsedAction, userName)

@@ -2,7 +2,10 @@ module github.com/RodrigoGonzalez78/go_analyzer
 
 go 1.24.2
 
-require gorm.io/driver/sqlite v1.6.0
+require (
+	github.com/rs/cors v1.11.1
+	gorm.io/driver/sqlite v1.6.0
+)
 
 require golang.org/x/text v0.26.0 // indirect
 
