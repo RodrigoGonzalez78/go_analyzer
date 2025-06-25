@@ -288,35 +288,50 @@ func (p *Parser) parseFechaFija() (string, error) {
 
 // parseHora analiza la regla HORA → "a las" NUMERO ":" MINUTOS (formato 24h)
 func (p *Parser) parseHora() (string, error) {
-	if !p.expect("a") {
-		return "", fmt.Errorf("se esperaba 'a'")
+	// Verificar que hay suficientes tokens antes de comenzar
+	if p.pos+2 >= len(p.tokens) {
+		return "", fmt.Errorf("tokens insuficientes para hora")
 	}
 
-	if !p.expect("las") {
-		return "", fmt.Errorf("se esperaba 'las' después de 'a'")
+	// Verificar que los próximos tokens son "a" y "las"
+	if p.tokens[p.pos] != "a" || p.tokens[p.pos+1] != "las" {
+		return "", fmt.Errorf("se esperaba 'a las'")
 	}
 
-	numero := p.consume()
-	if !esNumero(numero) {
-		return "", fmt.Errorf("se esperaba un número para la hora")
+	// Verificar que hay un token de hora después de "a las"
+	if p.pos+2 >= len(p.tokens) {
+		return "", fmt.Errorf("se esperaba hora después de 'a las'")
 	}
 
-	// Validar hora en formato 24h (0-23)
-	hora, _ := strconv.Atoi(numero)
-	if hora > 23 {
-		return "", fmt.Errorf("hora inválida, debe estar entre 0 y 23: %d", hora)
+	horaToken := p.tokens[p.pos+2]
+
+	// Validar el formato de la hora antes de consumir tokens
+	re := regexp.MustCompile(`^(\d{1,2})(?::(\d{2}))?$`)
+	matches := re.FindStringSubmatch(horaToken)
+	if matches == nil {
+		return "", fmt.Errorf("formato de hora inválido: '%s'", horaToken)
 	}
 
-	if !p.expect(":") {
-		return "", fmt.Errorf("se esperaba ':' después de la hora")
+	// Validar rangos
+	h, _ := strconv.Atoi(matches[1])
+	if h < 0 || h > 23 {
+		return "", fmt.Errorf("hora fuera de rango: %d", h)
 	}
 
-	minutos, err := p.parseMinutos()
-	if err != nil {
-		return "", err
+	m := 0
+	if matches[2] != "" {
+		m, _ = strconv.Atoi(matches[2])
+		if m < 0 || m > 59 {
+			return "", fmt.Errorf("minutos fuera de rango: %d", m)
+		}
 	}
 
-	return "a las " + numero + ":" + minutos, nil
+	// Si llegamos aquí, todo es válido - consumir tokens
+	p.consume() // "a"
+	p.consume() // "las"
+	p.consume() // hora
+
+	return fmt.Sprintf("a las %02d:%02d", h, m), nil
 }
 
 // parseMes analiza los nombres de meses
@@ -397,8 +412,9 @@ func Ejemplo() {
 		"agendá reunión miércoles a las 15:30",
 		"anotá ejercicio jueves a las 06:45",
 		"recordame descanso viernes a las 23:15",
-		"agendá llamada sábado a las 00:30",
-		"",
+
+		"agendá llamada sábado a las", //Invalido
+		"",                            //invalido
 		"comando inválido",
 		"agendá",                     // Sin palabras
 		"agendá reunión a las 25:00", // Hora inválida
@@ -427,6 +443,7 @@ func Ejemplo() {
 		} else {
 			fmt.Printf("✓ Transformado - Usuario: %s, Descripción: '%s', Fecha: %s\n",
 				action.UserName, action.Description, action.Date.Format("2006-01-02 15:04"))
+			fmt.Println(action.Date)
 		}
 		fmt.Println("---")
 	}
