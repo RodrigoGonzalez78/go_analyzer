@@ -44,13 +44,13 @@ func main() {
 	handler := corsHandler.Handler(r)
 
 	// Probar con un puerto diferente para descartar problemas de permisos o conflictos
-	port := "8081"
+	port := "8080"
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
 	}
 
 	log.Printf("Servidor con CORS habilitado iniciando en el puerto: %s\n", port)
-	
+
 	err := http.ListenAndServe(":"+port, handler)
 	if err != nil {
 		log.Printf("Error tipo: %T\n", err)
