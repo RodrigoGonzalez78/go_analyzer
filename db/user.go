@@ -8,16 +8,7 @@ import (
 )
 
 func CreateUser(user models.User) error {
-	isUnique, err := IsUserNameUnique(user.UserName)
-
-	if err != nil {
-		return fmt.Errorf("error al verificar usuario: %v", err)
-	}
-
-	if !isUnique {
-		return fmt.Errorf("el nombre de usuario '%s' ya está en uso", user.UserName)
-	}
-
+	// La verificación de nombre de usuario único ya se hace en el endpoint
 	if err := database.Create(&user).Error; err != nil {
 		return fmt.Errorf("error al crear usuario: %v", err)
 	}

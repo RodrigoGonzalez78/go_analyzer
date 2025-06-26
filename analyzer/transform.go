@@ -14,6 +14,7 @@ func TransformToAction(parsed ParsedAction, userName string) (models.Action, err
 	action := models.Action{
 		UserName:    userName,
 		Description: strings.Join(parsed.Palabras, " "),
+		Type:        parsed.Type, // Agregar el tipo determinado por el analizador
 	}
 
 	// Procesar fecha y hora
