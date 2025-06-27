@@ -79,15 +79,6 @@
 - `"anotá ejercicio#1"`
 - `"recordame pagar $100"`
 
-### Fechas inválidas
-- `"agendá reunión ayer"`
-- `"anotá comprar pasado"`
-- `"recordame llamar enero"` (mes sin día/año)
-- `"agendá cita 32 de enero 2024"` (día inválido)
-- `"anotá compras 15 de mes 2024"` (mes inválido)
-- `"recordame pagar 15 de enero 24"` (año de 2 dígitos)
-- `"agendá reunión 15 enero 2024"` (falta "de")
-
 ### Horas inválidas
 - `"agendá reunión a las 25:00"` (hora > 23)
 - `"anotá comprar a las 10:60"` (minutos > 59)
@@ -132,21 +123,3 @@
 ### Acentos incorrectos en fechas/meses
 - `"agendá reunión 15 de énero 2024"`
 - `"anotá comprar 20 de diciémbre 2025"`
-
----
-
-## 🔍 CASOS LÍMITE
-
-### Válidos pero específicos
-- `"agendá a"` → ERROR (palabra inválida)
-- `"anotá reunión 15 de diciembre 2024 a las 00:00"` → OK
-- `"recordame llamar domingo a las 23:59"` → OK
-
-### Espacios extra (deberían ser manejados por tokenize)
-- `"agendá  reunión   hoy"` → Probablemente OK (tokenize normaliza)
-- `" agendá reunión "` → Probablemente OK (TrimSpace)
-
-### Mayúsculas/minúsculas
-- `"AGENDÁ reunión"` → ERROR (verbo debe ser minúscula)
-- `"agendá REUNIÓN"` → ERROR (palabra con mayúsculas)
-- `"agendá reunión LUNES"` → ERROR (fecha con mayúsculas)
