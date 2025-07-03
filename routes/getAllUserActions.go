@@ -32,12 +32,15 @@ func GetAllUserActions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	actions, err := db.GetUserActionsPaginated(claim.UserName, page, pageSize)
+	actions, total, err := db.GetUserActionsPaginatedAndTotal(claim.UserName, page, pageSize)
 	if err != nil {
 		http.Error(w, "Error al obtener las acciones", http.StatusInternalServerError)
 		return
 	}
-
+	response := map[string]interface{}{
+		"actions": actions,
+		"total": total,
+	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(actions)
+	json.NewEncoder(w).Encode(response)
 }

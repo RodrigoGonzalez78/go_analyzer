@@ -22,6 +22,20 @@ func GetActionByID(id uint) (*models.Action, error) {
 	return &action, nil
 }
 
+// Devuelve la lista paginada y el total de acciones del usuario
+func GetUserActionsPaginatedAndTotal(userName string, page int, pageSize int) ([]models.Action, int64, error) {
+	var actions []models.Action
+	var total int64
+	dbQuery := database.Model(&models.Action{}).Where("user_name = ?", userName)
+	dbQuery.Count(&total)
+	offset := (page - 1) * pageSize
+	err := dbQuery.Limit(pageSize).Offset(offset).Find(&actions).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	return actions, total, nil
+}
+
 func GetUserActionsPaginated(userName string, page int, pageSize int) ([]models.Action, error) {
 	var actions []models.Action
 	offset := (page - 1) * pageSize
