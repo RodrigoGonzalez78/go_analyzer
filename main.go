@@ -13,29 +13,7 @@ import (
 )
 
 // corsMiddleware maneja los headers CORS para permitir conexiones desde el frontend
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Permitir origen desde Next.js (puerto 3000 por defecto)
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-		
-		// Permitir métodos HTTP
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		
-		// Permitir headers
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-		
-		// Permitir credenciales
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		
-		// Manejar preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		
-		next.ServeHTTP(w, r)
-	})
-}
+
 
 func main() {
 
@@ -58,9 +36,10 @@ func main() {
 
 	// Configurar CORS para permitir solicitudes desde el frontend
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // Origen del frontend
+		// Permitir tanto localhost (desarrollo) como el dominio sslip.io (producción)
+		AllowedOrigins:   []string{"http://localhost:3000", "https://192-99-145-175.sslip.io"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "X-Requested-With"},
 		ExposedHeaders:   []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           300, // Tiempo máximo (en segundos) que el navegador puede cachear los resultados de una solicitud preflight

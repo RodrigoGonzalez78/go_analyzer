@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // CreateAction función principal que parsea un comando
@@ -97,13 +98,11 @@ func (p *Parser) parseComando() (ParsedAction, error) {
 	}
 	action.Verbo = verbo
 
-	// Determinar tipo basado en el verbo
+	// Determinar tipo basado en el verbo (ya normalizado)
 	switch verbo {
 	case "agendá":
 		action.Type = "evento"
-	case "anotá":
-		action.Type = "recordatorio"
-	case "recordame":
+	case "anotá", "recordame":
 		action.Type = "recordatorio"
 	default:
 		return action, fmt.Errorf("verbo inválido: '%s'. Esperado: agendá, anotá, recordame", verbo)
@@ -132,15 +131,33 @@ func (p *Parser) parseComando() (ParsedAction, error) {
 	return action, nil
 }
 
-// parseVerbo analiza la regla VERBO → "agendá" | "anotá" | "recordame"
+// parseVerbo analiza la regla VERBO → "agendá" | "anotá" | "recordame" (permite variantes con/sin tilde y mayúsculas)
 func (p *Parser) parseVerbo() (string, error) {
 	token := p.peek()
-	switch token {
-	case "agendá", "anotá", "recordame":
-		return p.consume(), nil
-	default:
-		return "", fmt.Errorf("verbo inválido: '%s'. Esperado: agendá, anotá, recordame", token)
+	normalized := normalizeVerbo(token)
+	validVerbos := map[string]string{
+		"agendá":    "agendá",
+		"agenda":    "agendá",
+		"anotá":     "anotá",
+		"anota":     "anotá",
+		"recordame": "recordame",
 	}
+	if v, ok := validVerbos[normalized]; ok {
+		p.consume()
+		return v, nil // Siempre devolvemos el verbo "normalizado" para el resto del parser
+	}
+	return "", fmt.Errorf("verbo inválido: '%s'. Esperado: agendá, anotá, recordame", token)
+}
+
+// normalizeVerbo normaliza el verbo: minúsculas, sin tildes
+func normalizeVerbo(s string) string {
+	s = strings.ToLower(s)
+	s = strings.ReplaceAll(s, "á", "a")
+	s = strings.ReplaceAll(s, "é", "e")
+	s = strings.ReplaceAll(s, "í", "i")
+	s = strings.ReplaceAll(s, "ó", "o")
+	s = strings.ReplaceAll(s, "ú", "u")
+	return s
 }
 
 // parsePalabras analiza la regla PALABRAS → PALABRA { PALABRA }
@@ -237,7 +254,7 @@ func (p *Parser) parseTiempo() (string, string, error) {
 	return "", "", nil
 }
 
-// parseFecha analiza la regla FECHA → FECHA_FIJA | NUMERO "de" MES AÑO
+// parseFecha analiza la regla FECHA → FECHA_FIJA | NUMERO "de" MES [AÑO]
 func (p *Parser) parseFecha() (string, error) {
 	// Intentar fecha fija primero
 	fechaFija, err := p.parseFechaFija()
@@ -245,7 +262,7 @@ func (p *Parser) parseFecha() (string, error) {
 		return fechaFija, nil
 	}
 
-	// Intentar formato "NUMERO de MES AÑO"
+	// Intentar formato "NUMERO de MES [AÑO]"
 	if !esNumero(p.peek()) {
 		return "", fmt.Errorf("fecha inválida")
 	}
@@ -262,13 +279,23 @@ func (p *Parser) parseFecha() (string, error) {
 		return "", err
 	}
 
+	// Intentar parsear el año, si no hay, usar el actual
+	currPos := p.pos
 	año, err := p.parseAño()
 	if err != nil {
-		return "", err
+		// No hay año, usar el actual
+		p.pos = currPos // No consumir nada si falla
+		año = fmt.Sprintf("%d", getCurrentYear())
 	}
 
 	return numero + " de " + mes + " " + año, nil
 }
+
+// getCurrentYear devuelve el año actual (en int)
+func getCurrentYear() int {
+	return time.Now().Year()
+}
+
 
 // parseFechaFija analiza fechas fijas como "hoy", "mañana", días de la semana
 func (p *Parser) parseFechaFija() (string, error) {
