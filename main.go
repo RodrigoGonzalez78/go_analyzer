@@ -4,18 +4,29 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/RodrigoGonzalez78/go_analyzer/db"
-	// "github.com/RodrigoGonzalez78/go_analyzer/analyzer"
+	"github.com/RodrigoGonzalez78/go_analyzer/analyzer"
 	"github.com/RodrigoGonzalez78/go_analyzer/middleware"
 	"github.com/RodrigoGonzalez78/go_analyzer/routes"
 	"github.com/rs/cors"
 )
 
+// ArgentinaLoc es la ubicación horaria de Buenos Aires para toda la app
+var ArgentinaLoc *time.Location
+
 // corsMiddleware maneja los headers CORS para permitir conexiones desde el frontend
 
 
 func main() {
+	var err error
+	ArgentinaLoc, err = time.LoadLocation("America/Argentina/Buenos_Aires")
+	if err != nil {
+		log.Fatalf("No se pudo cargar la zona horaria de Buenos Aires: %v", err)
+	}
+	// Setear zona horaria global para analyzer
+	analyzer.SetArgentinaLoc(ArgentinaLoc)
 
 	db.StartDB()
 	db.MigrateModels()
@@ -56,7 +67,7 @@ func main() {
 
 	log.Printf("Servidor con CORS habilitado iniciando en el puerto: %s\n", port)
 
-	err := http.ListenAndServe(":"+port, handler)
+	err = http.ListenAndServe(":"+port, handler)
 	if err != nil {
 		log.Printf("Error tipo: %T\n", err)
 		log.Fatalf("Error al iniciar el servidor: %v", err)

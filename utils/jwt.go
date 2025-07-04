@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RodrigoGonzalez78/go_analyzer/analyzer"
 	"github.com/RodrigoGonzalez78/go_analyzer/models"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -12,11 +13,12 @@ import (
 func GenerateJWT(userName string) (string, error) {
 	secretKey := []byte("NoMeHackeen")
 
+	t := time.Now().In(analyzer.ArgentinaLoc)
 	claims := models.Claim{
 		UserName: userName,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(t.Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(t),
 		},
 	}
 

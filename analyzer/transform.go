@@ -9,6 +9,13 @@ import (
 	"github.com/RodrigoGonzalez78/go_analyzer/models"
 )
 
+// ArgentinaLoc es la ubicación horaria de Buenos Aires, debe ser seteada por main.go
+var ArgentinaLoc *time.Location
+
+func SetArgentinaLoc(loc *time.Location) {
+	ArgentinaLoc = loc
+}
+
 // TransformToAction convierte ParsedAction a Action para la base de datos
 func TransformToAction(parsed ParsedAction, userName string) (models.Action, error) {
 	action := models.Action{
@@ -29,7 +36,7 @@ func TransformToAction(parsed ParsedAction, userName string) (models.Action, err
 
 // parseDateAndTime convierte fecha y hora string a time.Time
 func parseDateAndTime(fechaStr, horaStr string) (time.Time, error) {
-	now := time.Now()
+	now := time.Now().In(ArgentinaLoc)
 
 	// Si no hay fecha ni hora, usar fecha actual
 	if fechaStr == "" && horaStr == "" {
@@ -42,7 +49,7 @@ func parseDateAndTime(fechaStr, horaStr string) (time.Time, error) {
 
 	if fechaStr == "" {
 		// Si no hay fecha, usar hoy
-		targetDate = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		targetDate = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, ArgentinaLoc)
 	} else {
 		targetDate, err = parseDate(fechaStr, now)
 		if err != nil {
@@ -63,7 +70,7 @@ func parseDateAndTime(fechaStr, horaStr string) (time.Time, error) {
 
 	// Combinar fecha y hora
 	result := time.Date(targetDate.Year(), targetDate.Month(), targetDate.Day(),
-		hour, minute, 0, 0, targetDate.Location())
+		hour, minute, 0, 0, ArgentinaLoc)
 
 	return result, nil
 }
@@ -72,10 +79,10 @@ func parseDateAndTime(fechaStr, horaStr string) (time.Time, error) {
 func parseDate(fechaStr string, now time.Time) (time.Time, error) {
 	switch fechaStr {
 	case "hoy":
-		return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location()), nil
+		return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, ArgentinaLoc), nil
 	case "mañana":
 		tomorrow := now.AddDate(0, 0, 1)
-		return time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 0, 0, 0, 0, now.Location()), nil
+		return time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 0, 0, 0, 0, ArgentinaLoc), nil
 	case "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo":
 		return getNextWeekday(fechaStr, now), nil
 	default:
@@ -105,7 +112,7 @@ func getNextWeekday(dayName string, now time.Time) time.Time {
 	}
 
 	targetDate := now.AddDate(0, 0, daysUntilTarget)
-	return time.Date(targetDate.Year(), targetDate.Month(), targetDate.Day(), 0, 0, 0, 0, now.Location())
+	return time.Date(targetDate.Year(), targetDate.Month(), targetDate.Day(), 0, 0, 0, 0, ArgentinaLoc)
 }
 
 // parseFullDate parsea formato "15 de marzo 2024"
@@ -130,7 +137,7 @@ func parseFullDate(fechaStr string) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("año inválido: %s", parts[3])
 	}
 
-	return time.Date(year, month, day, 0, 0, 0, 0, time.Local), nil
+	return time.Date(year, month, day, 0, 0, 0, 0, ArgentinaLoc), nil
 }
 
 // parseMonth convierte nombre de mes a time.Month
